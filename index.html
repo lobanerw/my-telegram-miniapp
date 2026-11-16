@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Моё мини-приложение</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: Arial, sans-serif;
+            background: var(--tg-theme-bg-color, #f3f5f8);
+            color: var(--tg-theme-text-color, #222);
+        }
+
+        h1 { text-align: center; }
+
+        .menu {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        button {
+            padding: 22px 10px;
+            border: none;
+            border-radius: 16px;
+            background: var(--tg-theme-button-color, #229ED9);
+            color: var(--tg-theme-button-text-color, white);
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 17px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 Главное меню</h1>
+    <p style="text-align:center">Добро пожаловать в мини-приложение!</p>
+
+    <div class="menu">
+        <button onclick="show('💬 Общение')">💬 Общение</button>
+        <button onclick="show('💡 Интересные факты')">💡 Факты</button>
+        <button onclick="show('🎮 Мини-игры')">🎮 Игры</button>
+        <button onclick="show('👤 Профиль')">👤 Профиль</button>
+        <button onclick="show('🏆 Достижения')">🏆 Достижения</button>
+        <button onclick="show('⚙️ Настройки')">⚙️ Настройки</button>
+    </div>
+
+    <div id="result">Выбери раздел!</div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+
+        function show(section) {
+            document.getElementById("result").textContent =
+                "Ты открыл раздел: " + section;
+            tg.HapticFeedback.impactOccurred("light");
+        }
+    </script>
+</body>
+</html>
