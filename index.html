@@ -8,9 +8,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
@@ -20,15 +18,8 @@
             color: var(--tg-theme-text-color, #222);
         }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 8px;
-        }
-
-        .subtitle {
-            text-align: center;
-            opacity: 0.7;
-        }
+        h1 { text-align: center; margin-bottom: 8px; }
+        .subtitle { text-align: center; opacity: 0.7; }
 
         .grid {
             display: grid;
@@ -40,20 +31,15 @@
         button {
             border: none;
             border-radius: 16px;
-            padding: 22px 8px;
+            padding: 18px 8px;
             background: var(--tg-theme-button-color, #229ED9);
             color: var(--tg-theme-button-text-color, white);
             font-size: 15px;
             cursor: pointer;
         }
 
-        .screen {
-            display: none;
-        }
-
-        .screen.active {
-            display: block;
-        }
+        .screen { display: none; }
+        .screen.active { display: block; }
 
         .back {
             width: 100%;
@@ -69,10 +55,15 @@
             text-align: center;
         }
 
-        .icon {
-            font-size: 38px;
-            margin-bottom: 10px;
+        .icon { font-size: 38px; margin-bottom: 10px; }
+
+        #factText {
+            font-size: 17px;
+            line-height: 1.5;
+            margin: 20px 0;
         }
+
+        #newFactButton { width: 100%; }
     </style>
 </head>
 
@@ -102,6 +93,11 @@
             <div class="icon" id="sectionIcon"></div>
             <h2 id="sectionTitle"></h2>
             <p id="sectionDescription"></p>
+
+            <div id="factArea" style="display:none;">
+                <p id="factText">Нажми кнопку, чтобы получить интересный факт!</p>
+                <button id="newFactButton" onclick="newFact()">🎲 Новый факт</button>
+            </div>
         </div>
     </section>
 
@@ -119,7 +115,7 @@
             facts: {
                 icon: "💡",
                 title: "Интересные факты",
-                description: "Здесь будут интересные факты."
+                description: "Нажимай кнопку и узнавай что-нибудь новое!"
             },
             games: {
                 icon: "🎮",
@@ -158,9 +154,23 @@
             }
         };
 
+        const facts = [
+            "🐙 У осьминога три сердца.",
+            "🍯 Мёд при правильном хранении может очень долго не портиться.",
+            "🦒 У жирафа столько же шейных позвонков, сколько у человека — семь.",
+            "🌍 Земля не идеальный шар: она немного сплюснута у полюсов.",
+            "🐬 Дельфины спят, отключая по очереди половины мозга.",
+            "🌙 Луна постепенно удаляется от Земли.",
+            "🦋 Бабочки чувствуют вкус с помощью рецепторов на лапках.",
+            "🐧 У пингвинов есть колени, хотя их не видно под перьями.",
+            "🌳 Деревья могут передавать друг другу вещества через подземные грибные сети.",
+            "⭐ Солнце — это звезда."
+        ];
+
+        let previousFact = -1;
+
         function openSection(id) {
             const data = sections[id];
-
             if (!data) return;
 
             document.getElementById("home").classList.remove("active");
@@ -169,6 +179,27 @@
             document.getElementById("sectionIcon").textContent = data.icon;
             document.getElementById("sectionTitle").textContent = data.title;
             document.getElementById("sectionDescription").textContent = data.description;
+
+            const factArea = document.getElementById("factArea");
+            factArea.style.display = id === "facts" ? "block" : "none";
+
+            if (id === "facts") {
+                document.getElementById("factText").textContent =
+                    "Нажми кнопку, чтобы получить интересный факт!";
+            }
+
+            tg.HapticFeedback.impactOccurred("light");
+        }
+
+        function newFact() {
+            let index;
+
+            do {
+                index = Math.floor(Math.random() * facts.length);
+            } while (index === previousFact && facts.length > 1);
+
+            previousFact = index;
+            document.getElementById("factText").textContent = facts[index];
 
             tg.HapticFeedback.impactOccurred("light");
         }
@@ -181,4 +212,3 @@
 
 </body>
 </html>
-
