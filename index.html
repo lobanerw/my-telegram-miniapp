@@ -4,68 +4,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Моё мини-приложение</title>
+    <title>Telegram Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
-            padding: 24px;
+            padding: 20px;
             font-family: Arial, sans-serif;
-            background: var(--tg-theme-bg-color, #f3f5f8);
+            background: var(--tg-theme-bg-color, #f2f4f8);
             color: var(--tg-theme-text-color, #222);
         }
 
-        h1 { text-align: center; }
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+        }
 
-        .menu {
+        .subtitle {
+            text-align: center;
+            opacity: 0.7;
+        }
+
+        .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-top: 28px;
+            margin-top: 25px;
         }
 
         button {
-            padding: 22px 10px;
             border: none;
             border-radius: 16px;
+            padding: 22px 8px;
             background: var(--tg-theme-button-color, #229ED9);
             color: var(--tg-theme-button-text-color, white);
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
         }
 
-        #result {
-            margin-top: 25px;
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .back {
+            width: 100%;
+            margin-bottom: 20px;
+            padding: 14px;
+        }
+
+        .content {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 16px;
+            background: var(--tg-theme-secondary-bg-color, #e8edf3);
             text-align: center;
-            font-size: 17px;
+        }
+
+        .icon {
+            font-size: 38px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
+
 <body>
-    <h1>🤖 Главное меню</h1>
-    <p style="text-align:center">Добро пожаловать в мини-приложение!</p>
 
-    <div class="menu">
-        <button onclick="show('💬 Общение')">💬 Общение</button>
-        <button onclick="show('💡 Интересные факты')">💡 Факты</button>
-        <button onclick="show('🎮 Мини-игры')">🎮 Игры</button>
-        <button onclick="show('👤 Профиль')">👤 Профиль</button>
-        <button onclick="show('🏆 Достижения')">🏆 Достижения</button>
-        <button onclick="show('⚙️ Настройки')">⚙️ Настройки</button>
-    </div>
+    <section id="home" class="screen active">
+        <h1>🤖 Главное меню</h1>
+        <p class="subtitle">Добро пожаловать!</p>
 
-    <div id="result">Выбери раздел!</div>
+        <div class="grid">
+            <button onclick="openSection('chat')">💬 Общение</button>
+            <button onclick="openSection('facts')">💡 Интересные факты</button>
+            <button onclick="openSection('games')">🎮 Мини-игры</button>
+            <button onclick="openSection('profile')">👤 Профиль</button>
+            <button onclick="openSection('quiz')">🧠 Викторины</button>
+            <button onclick="openSection('achievements')">🏆 Достижения</button>
+            <button onclick="openSection('pet')">🐱 Питомец</button>
+            <button onclick="openSection('weather')">🌦️ Погода</button>
+            <button onclick="openSection('settings')">⚙️ Настройки</button>
+        </div>
+    </section>
+
+    <section id="section" class="screen">
+        <button class="back" onclick="goHome()">← Назад</button>
+
+        <div class="content">
+            <div class="icon" id="sectionIcon"></div>
+            <h2 id="sectionTitle"></h2>
+            <p id="sectionDescription"></p>
+        </div>
+    </section>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
 
-        function show(section) {
-            document.getElementById("result").textContent =
-                "Ты открыл раздел: " + section;
+        const sections = {
+            chat: {
+                icon: "💬",
+                title: "Общение",
+                description: "Здесь будет общение с ботом."
+            },
+            facts: {
+                icon: "💡",
+                title: "Интересные факты",
+                description: "Здесь будут интересные факты."
+            },
+            games: {
+                icon: "🎮",
+                title: "Мини-игры",
+                description: "Здесь появятся мини-игры."
+            },
+            profile: {
+                icon: "👤",
+                title: "Профиль",
+                description: "Здесь будет твой профиль."
+            },
+            quiz: {
+                icon: "🧠",
+                title: "Викторины",
+                description: "Здесь будут викторины."
+            },
+            achievements: {
+                icon: "🏆",
+                title: "Достижения",
+                description: "Здесь будут твои награды."
+            },
+            pet: {
+                icon: "🐱",
+                title: "Виртуальный питомец",
+                description: "Здесь будет твой питомец."
+            },
+            weather: {
+                icon: "🌦️",
+                title: "Погода",
+                description: "Здесь будет прогноз погоды."
+            },
+            settings: {
+                icon: "⚙️",
+                title: "Настройки",
+                description: "Здесь будут настройки приложения."
+            }
+        };
+
+        function openSection(id) {
+            const data = sections[id];
+
+            if (!data) return;
+
+            document.getElementById("home").classList.remove("active");
+            document.getElementById("section").classList.add("active");
+
+            document.getElementById("sectionIcon").textContent = data.icon;
+            document.getElementById("sectionTitle").textContent = data.title;
+            document.getElementById("sectionDescription").textContent = data.description;
+
             tg.HapticFeedback.impactOccurred("light");
         }
+
+        function goHome() {
+            document.getElementById("section").classList.remove("active");
+            document.getElementById("home").classList.add("active");
+        }
     </script>
+
 </body>
 </html>
+
