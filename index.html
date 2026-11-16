@@ -38,6 +38,22 @@
             cursor: pointer;
         }
 
+        button:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #aaa;
+            border-radius: 12px;
+            margin: 8px 0;
+            font-size: 16px;
+            background: var(--tg-theme-bg-color, white);
+            color: var(--tg-theme-text-color, #222);
+        }
+
         .screen { display: none; }
         .screen.active { display: block; }
 
@@ -57,158 +73,279 @@
 
         .icon { font-size: 38px; margin-bottom: 10px; }
 
-        #factText {
+        #factText, #chatReply {
             font-size: 17px;
             line-height: 1.5;
             margin: 20px 0;
         }
 
-        #newFactButton { width: 100%; }
+        #newFactButton, #sendMessageButton {
+            width: 100%;
+        }
+
+        .small-text {
+            opacity: 0.7;
+            font-size: 13px;
+        }
+
+        .error { color: #d33; }
     </style>
 </head>
 
 <body>
 
-    <section id="home" class="screen active">
-        <h1>🤖 Главное меню</h1>
-        <p class="subtitle">Добро пожаловать!</p>
+<section id="home" class="screen active">
+    <h1>🤖 Главное меню</h1>
+    <p class="subtitle">Добро пожаловать!</p>
 
-        <div class="grid">
-            <button onclick="openSection('chat')">💬 Общение</button>
-            <button onclick="openSection('facts')">💡 Интересные факты</button>
-            <button onclick="openSection('games')">🎮 Мини-игры</button>
-            <button onclick="openSection('profile')">👤 Профиль</button>
-            <button onclick="openSection('quiz')">🧠 Викторины</button>
-            <button onclick="openSection('achievements')">🏆 Достижения</button>
-            <button onclick="openSection('pet')">🐱 Питомец</button>
-            <button onclick="openSection('weather')">🌦️ Погода</button>
-            <button onclick="openSection('settings')">⚙️ Настройки</button>
+    <div class="grid">
+        <button onclick="openSection('chat')">💬 Общение</button>
+        <button onclick="openSection('facts')">💡 Интересные факты</button>
+        <button onclick="openSection('games')">🎮 Мини-игры</button>
+        <button onclick="openSection('profile')">👤 Профиль</button>
+        <button onclick="openSection('quiz')">🧠 Викторины</button>
+        <button onclick="openSection('achievements')">🏆 Достижения</button>
+        <button onclick="openSection('pet')">🐱 Питомец</button>
+        <button onclick="openSection('weather')">🌦️ Погода</button>
+        <button onclick="openSection('settings')">⚙️ Настройки</button>
+    </div>
+</section>
+
+<section id="section" class="screen">
+    <button class="back" onclick="goHome()">← Назад</button>
+
+    <div class="content">
+        <div class="icon" id="sectionIcon"></div>
+        <h2 id="sectionTitle"></h2>
+        <p id="sectionDescription"></p>
+
+        <div id="factArea" style="display:none;">
+            <p id="factText">Нажми кнопку, чтобы получить интересный факт!</p>
+            <button id="newFactButton" onclick="newFact()">🎲 Новый факт</button>
         </div>
-    </section>
 
-    <section id="section" class="screen">
-        <button class="back" onclick="goHome()">← Назад</button>
-
-        <div class="content">
-            <div class="icon" id="sectionIcon"></div>
-            <h2 id="sectionTitle"></h2>
-            <p id="sectionDescription"></p>
-
-            <div id="factArea" style="display:none;">
-                <p id="factText">Нажми кнопку, чтобы получить интересный факт!</p>
-                <button id="newFactButton" onclick="newFact()">🎲 Новый факт</button>
-            </div>
+        <div id="profileArea" style="display:none;">
+            <p id="profileName">Загружаем профиль...</p>
+            <p id="profileUsername"></p>
+            <p id="profileId" class="small-text"></p>
+            <button onclick="loadProfile()">🔄 Обновить профиль</button>
         </div>
-    </section>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
+        <div id="chatArea" style="display:none;">
+            <p id="chatReply">Напиши сообщение!</p>
+            <input id="chatInput" type="text"
+                   maxlength="1000" placeholder="Твоё сообщение...">
+            <button id="sendMessageButton" onclick="sendMessage()">Отправить</button>
+        </div>
+    </div>
+</section>
 
-        const sections = {
-            chat: {
-                icon: "💬",
-                title: "Общение",
-                description: "Здесь будет общение с ботом."
-            },
-            facts: {
-                icon: "💡",
-                title: "Интересные факты",
-                description: "Нажимай кнопку и узнавай что-нибудь новое!"
-            },
-            games: {
-                icon: "🎮",
-                title: "Мини-игры",
-                description: "Здесь появятся мини-игры."
-            },
-            profile: {
-                icon: "👤",
-                title: "Профиль",
-                description: "Здесь будет твой профиль."
-            },
-            quiz: {
-                icon: "🧠",
-                title: "Викторины",
-                description: "Здесь будут викторины."
-            },
-            achievements: {
-                icon: "🏆",
-                title: "Достижения",
-                description: "Здесь будут твои награды."
-            },
-            pet: {
-                icon: "🐱",
-                title: "Виртуальный питомец",
-                description: "Здесь будет твой питомец."
-            },
-            weather: {
-                icon: "🌦️",
-                title: "Погода",
-                description: "Здесь будет прогноз погоды."
-            },
-            settings: {
-                icon: "⚙️",
-                title: "Настройки",
-                description: "Здесь будут настройки приложения."
+<script>
+    const tg = window.Telegram.WebApp;
+
+    tg.ready();
+    tg.expand();
+
+    // Заполним после размещения API на HTTPS-сервере.
+    const API_BASE = "ВСТАВИМ_АДРЕС_API_ПОЗЖЕ";
+
+    const sections = {
+        chat: {
+            icon: "💬",
+            title: "Общение",
+            description: "Отправляй сообщения серверу."
+        },
+        facts: {
+            icon: "💡",
+            title: "Интересные факты",
+            description: "Узнавай что-нибудь новое!"
+        },
+        games: {
+            icon: "🎮",
+            title: "Мини-игры",
+            description: "Здесь появятся мини-игры."
+        },
+        profile: {
+            icon: "👤",
+            title: "Профиль",
+            description: "Твой профиль Telegram."
+        },
+        quiz: {
+            icon: "🧠",
+            title: "Викторины",
+            description: "Здесь будут викторины."
+        },
+        achievements: {
+            icon: "🏆",
+            title: "Достижения",
+            description: "Здесь будут твои награды."
+        },
+        pet: {
+            icon: "🐱",
+            title: "Виртуальный питомец",
+            description: "Здесь будет твой питомец."
+        },
+        weather: {
+            icon: "🌦️",
+            title: "Погода",
+            description: "Здесь будет прогноз погоды."
+        },
+        settings: {
+            icon: "⚙️",
+            title: "Настройки",
+            description: "Здесь будут настройки приложения."
+        }
+    };
+
+    function apiReady() {
+        return API_BASE.startsWith("https://") &&
+               !API_BASE.includes("ВСТАВИМ");
+    }
+
+    async function apiRequest(endpoint, options = {}) {
+        if (!apiReady()) {
+            throw new Error("Сервер ещё не размещён в интернете.");
+        }
+
+        if (!tg.initData) {
+            throw new Error("Открой приложение через Telegram.");
+        }
+
+        const response = await fetch(API_BASE + endpoint, {
+            ...options,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + tg.initData,
+                ...(options.headers || {})
             }
-        };
+        });
 
-        const facts = [
-            "🐙 У осьминога три сердца.",
-            "🍯 Мёд при правильном хранении может очень долго не портиться.",
-            "🦒 У жирафа столько же шейных позвонков, сколько у человека — семь.",
-            "🌍 Земля не идеальный шар: она немного сплюснута у полюсов.",
-            "🐬 Дельфины спят, отключая по очереди половины мозга.",
-            "🌙 Луна постепенно удаляется от Земли.",
-            "🦋 Бабочки чувствуют вкус с помощью рецепторов на лапках.",
-            "🐧 У пингвинов есть колени, хотя их не видно под перьями.",
-            "🌳 Деревья могут передавать друг другу вещества через подземные грибные сети.",
-            "⭐ Солнце — это звезда."
-        ];
+        const data = await response.json();
 
-        let previousFact = -1;
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || "Ошибка сервера.");
+        }
 
-        function openSection(id) {
-            const data = sections[id];
-            if (!data) return;
+        return data;
+    }
 
-            document.getElementById("home").classList.remove("active");
-            document.getElementById("section").classList.add("active");
+    function openSection(id) {
+        const data = sections[id];
+        if (!data) return;
 
-            document.getElementById("sectionIcon").textContent = data.icon;
-            document.getElementById("sectionTitle").textContent = data.title;
-            document.getElementById("sectionDescription").textContent = data.description;
+        document.getElementById("home").classList.remove("active");
+        document.getElementById("section").classList.add("active");
 
-            const factArea = document.getElementById("factArea");
-            factArea.style.display = id === "facts" ? "block" : "none";
+        document.getElementById("sectionIcon").textContent = data.icon;
+        document.getElementById("sectionTitle").textContent = data.title;
+        document.getElementById("sectionDescription").textContent = data.description;
 
-            if (id === "facts") {
-                document.getElementById("factText").textContent =
-                    "Нажми кнопку, чтобы получить интересный факт!";
-            }
+        document.getElementById("factArea").style.display =
+            id === "facts" ? "block" : "none";
 
+        document.getElementById("profileArea").style.display =
+            id === "profile" ? "block" : "none";
+
+        document.getElementById("chatArea").style.display =
+            id === "chat" ? "block" : "none";
+
+        if (id === "facts") {
+            document.getElementById("factText").textContent =
+                "Нажми кнопку, чтобы получить факт с сервера!";
+        }
+
+        if (id === "profile") loadProfile();
+
+        if (id === "chat") {
+            document.getElementById("chatReply").textContent =
+                "Напиши сообщение!";
+        }
+
+        if (tg.HapticFeedback) {
             tg.HapticFeedback.impactOccurred("light");
         }
+    }
 
-        function newFact() {
-            let index;
+    async function newFact() {
+        const button = document.getElementById("newFactButton");
+        const output = document.getElementById("factText");
 
-            do {
-                index = Math.floor(Math.random() * facts.length);
-            } while (index === previousFact && facts.length > 1);
+        button.disabled = true;
+        output.textContent = "Загружаем факт...";
 
-            previousFact = index;
-            document.getElementById("factText").textContent = facts[index];
+        try {
+            const data = await apiRequest("/api/fact");
+            output.textContent = data.fact;
+        } catch (error) {
+            output.textContent = error.message;
+        } finally {
+            button.disabled = false;
+        }
 
+        if (tg.HapticFeedback) {
             tg.HapticFeedback.impactOccurred("light");
         }
+    }
 
-        function goHome() {
-            document.getElementById("section").classList.remove("active");
-            document.getElementById("home").classList.add("active");
+    async function loadProfile() {
+        const name = document.getElementById("profileName");
+        const username = document.getElementById("profileUsername");
+        const id = document.getElementById("profileId");
+
+        name.textContent = "Загружаем профиль...";
+        username.textContent = "";
+        id.textContent = "";
+
+        try {
+            const data = await apiRequest("/api/me");
+            const profile = data.profile;
+
+            name.textContent = "Имя: " + profile.first_name;
+            username.textContent = profile.username
+                ? "Username: @" + profile.username
+                : "Username не указан";
+
+            id.textContent = "ID: " + profile.id;
+        } catch (error) {
+            name.textContent = error.message;
         }
-    </script>
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById("chatInput");
+        const output = document.getElementById("chatReply");
+        const button = document.getElementById("sendMessageButton");
+
+        const message = input.value.trim();
+
+        if (!message) {
+            output.textContent = "Сначала напиши сообщение.";
+            return;
+        }
+
+        button.disabled = true;
+        output.textContent = "Отправляем сообщение...";
+
+        try {
+            const data = await apiRequest("/api/chat", {
+                method: "POST",
+                body: JSON.stringify({ message })
+            });
+
+            output.textContent = data.reply;
+            input.value = "";
+        } catch (error) {
+            output.textContent = error.message;
+        } finally {
+            button.disabled = false;
+        }
+    }
+
+    function goHome() {
+        document.getElementById("section").classList.remove("active");
+        document.getElementById("home").classList.add("active");
+    }
+</script>
 
 </body>
 </html>
